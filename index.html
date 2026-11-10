@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TW III 2026 | Ditrenbang Unand</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --green-dark: #1e4d2b;
+  --green-main: #2e7d45;
+  --green-light: #e8f5ec;
+  --yellow: #f0c030;
+  --blue: #1a56db;
+  --orange: #d04a00;
+  --gray-0: #ffffff;
+  --gray-1: #f7f8f7;
+  --gray-2: #eef0ee;
+  --gray-4: #9aaa9a;
+  --gray-5: #5a6a5a;
+  --text: #1a231a;
+}
+html, body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--gray-1);
+  color: var(--text);
+  width: 100%;
+  margin: 0; padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.topbar {
+  background: var(--green-dark);
+  padding: 0 20px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.topbar-left { display: flex; align-items: center; gap: 10px; }
+.topbar-logo {
+  width: 26px; height: 26px;
+  background: var(--yellow); border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; color: var(--green-dark);
+  flex-shrink: 0;
+}
+.topbar-name { font-size: 13px; font-weight: 600; color: rgba(255,255,255,.9); }
+.topbar-sub  { font-size: 11px; color: rgba(255,255,255,.45); }
+.sasaran-label {
+  font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px;
+  color: var(--green-main); padding: 12px 8px 4px; border-top: 1px solid var(--gray-2); margin-top: 4px;
+}
+.sasaran-label:first-child { border-top: none; margin-top: 0; }
+.badge-neutral { background: var(--gray-2); color: var(--gray-5); }
+.tag-neutral { background: var(--gray-2); color: var(--gray-5); }
+.dot-neutral { background: var(--gray-4); }
+.chart-delta {
+  margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--gray-2);
+  font-size: 12.5px; color: var(--gray-5); text-align: center; font-weight: 500;
+}
+.chart-delta b { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+.delta-up { color: #15803d; }
+.delta-down { color: #b91c1c; }
+.delta-flat { color: var(--gray-5); }
+.source-bar {
+  background: var(--green-light); border-top: 1px solid var(--gray-2);
+  padding: 8px 20px; font-size: 11.5px; color: var(--gray-5); font-weight: 600;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap; flex-shrink: 0;
+}
+.source-bar a {
+  color: var(--green-dark); text-decoration: none; font-weight: 700;
+  padding: 3px 10px; background: var(--gray-0); border-radius: 20px;
+  border: 1px solid var(--gray-2); transition: background .15s, border-color .15s;
+}
+.source-bar a:hover { background: var(--yellow); border-color: var(--yellow); }
+.updated-tag {
+  margin-left: auto;
+  font-size: 11px; font-weight: 700; color: var(--green-dark);
+}
+.mobile-select-wrap {
+  display: none;
+  background: var(--gray-0);
+  border-bottom: 1px solid var(--gray-2);
+  padding: 10px 14px;
+  position: sticky; top: 0; z-index: 50;
+}
+.mobile-select {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--gray-2);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px; font-weight: 600;
+  color: var(--green-dark);
+  background: var(--gray-0);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231e4d2b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+}
+.layout {
+  display: flex; flex: 1;
+}
+.sidebar {
+  width: 180px; flex-shrink: 0;
+  background: var(--gray-0);
+  border-right: 1px solid var(--gray-2);
+  padding: 18px 8px;
+}
+.sidebar-label {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--gray-4); padding: 0 8px; margin-bottom: 10px;
+}
+.iku-btn {
+  width: 100%; display: flex; align-items: center; gap: 8px;
+  padding: 9px 8px; border-radius: 8px;
+  border: none; background: transparent;
+  cursor: pointer; text-align: left;
+  font-family: 'Outfit', sans-serif;
+  margin-bottom: 3px; transition: background .18s;
+}
+.iku-btn:hover { background: var(--green-light); }
+.iku-btn.active { background: var(--green-dark); }
+.iku-num {
+  width: 28px; height: 28px; border-radius: 7px;
+  background: var(--gray-2); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: var(--gray-5);
+  font-family: 'JetBrains Mono', monospace;
+  transition: background .18s, color .18s;
+}
+.iku-btn.active .iku-num { background: var(--yellow); color: var(--green-dark); }
+.iku-txt { font-size: 13px; font-weight: 500; color: var(--gray-5); flex: 1; transition: color .18s; }
+.iku-btn.active .iku-txt { color: #fff; font-weight: 600; }
+.iku-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.dot-ok { background: #22c55e; }
+.dot-no { background: #ef4444; }
+.main {
+  flex: 1; padding: 22px 24px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.panel { display: none; flex-direction: column; gap: 16px; animation: fadeUp .22s ease; }
+.panel.active { display: flex; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+.ph { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.ph-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.ph-desc  { font-size: 12px; color: var(--gray-4); line-height: 1.55; }
+.badge { flex-shrink: 0; padding: 6px 13px; border-radius: 20px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.badge-ok { background: #dcfce7; color: #15803d; }
+.badge-no { background: #fee2e2; color: #b91c1c; }
+.stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+.sc {
+  background: var(--gray-0); border-radius: 12px;
+  padding: 14px 15px; border: 1px solid var(--gray-2);
+  border-top: 3px solid;
+}
+.sc-blue   { border-top-color: var(--blue); }
+.sc-orange { border-top-color: var(--orange); }
+.sc-green  { border-top-color: var(--green-main); }
+.sc-yellow { border-top-color: var(--yellow); }
+.sc-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--gray-4); margin-bottom: 6px; }
+.sc-val { font-size: 24px; font-weight: 700; font-family: 'JetBrains Mono', monospace; line-height: 1; }
+.sc-val-sm { font-size: 18px; }
+.sc-sub { font-size: 11px; color: var(--gray-4); margin-top: 3px; }
+.chart-box {
+  background: var(--gray-0); border-radius: 12px;
+  border: 1px solid var(--gray-2); padding: 18px 20px;
+}
+.chart-head {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+  flex-wrap: wrap; gap: 8px;
+}
+.chart-head h3 { font-size: 13px; font-weight: 600; }
+.legend { display: flex; gap: 14px; }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--gray-5); font-weight: 500; }
+.leg-box { width: 12px; height: 12px; border-radius: 3px; background: var(--blue); }
+.leg-box-o { width: 12px; height: 12px; border-radius: 3px; background: var(--orange); }
+.chart-wrap { position: relative; height: 240px; }
+.table-box {
+  background: var(--gray-0); border-radius: 12px;
+  border: 1px solid var(--gray-2); overflow: hidden;
+}
+.table-title { padding: 12px 16px; border-bottom: 1px solid var(--gray-2); font-size: 13px; font-weight: 600; }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 400px; }
+thead tr { background: var(--gray-1); }
+th {
+  padding: 9px 14px; text-align: left;
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--gray-4);
+  border-bottom: 1px solid var(--gray-2);
+}
+tbody tr { border-bottom: 1px solid var(--gray-2); transition: background .12s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--gray-1); }
+td { padding: 10px 14px; font-size: 13px; }
+.td-y { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--gray-5); }
+.td-c { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--blue); }
+.td-t { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--orange); }
+.td-p { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+.tag { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.tag-ok { background: #dcfce7; color: #15803d; }
+.tag-no { background: #fee2e2; color: #b91c1c; }
+@media (max-width: 900px) {
+  .stats { grid-template-columns: repeat(2,1fr); }
+}
+@media (max-width: 640px) {
+  .sidebar { display: none; }
+  .mobile-select-wrap { display: block; }
+  .topbar-sub { display: none; }
+  .topbar-name { font-size: 12px; }
+  .main { padding: 14px 12px; }
+  .ph { flex-direction: column; gap: 10px; }
+  .ph-title { font-size: 18px; }
+  .badge { align-self: flex-start; }
+  .stats { grid-template-columns: repeat(2,1fr); gap: 8px; }
+  .sc { padding: 12px 12px; }
+  .sc-val { font-size: 20px; }
+  .sc-val-sm { font-size: 16px; }
+  .chart-wrap { height: 200px; }
+  .chart-head h3 { font-size: 12px; }
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">U</div>
+    <span class="topbar-name">Dashboard Capaian IKU &mdash; TW III 2026</span>
+  </div>
+  <div style="display:flex; align-items:center; gap:14px;">
+    <div class="topbar-sub">Ditrenbang &middot; Universitas Andalas</div>
+  </div>
+</div>
+
+<div class="mobile-select-wrap">
+  <select class="mobile-select" id="mobile-select-tw3" onchange="selectQuarter('tw3', this.value)">
+  </select>
+</div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-label">Sasaran &amp; Indikator</div>
+    <div id="sidebar-tw3"></div>
+  </aside>
+  <main class="main" id="main-tw3"></main>
+</div>
+
+<div class="source-bar">
+  Sumber data:
+  <a href="sumber/Capai_tw_3_2026_SPEKTA.pdf" target="_blank" rel="noopener">&#128196; Laporan Kinerja TW III 2026 (PDF)</a>
+  <span class="updated-tag">Diperbarui per Oktober 2026</span>
+</div>
+
+<script>
+const DATA2026 = [
+  { id:'1.1', sasaran:'S1', sasaranLabel:'Talenta',
+    desc:'Angka Efisiensi Edukasi perguruan tinggi (AEE PT)',
+    unit:'%', targetPK:87.53,
+    tw3:{target:55, realisasi:128.81} },
+  { id:'1.2', sasaran:'S1', sasaranLabel:'Talenta',
+    desc:'Persentase lulusan D1/D2/D3/D4/S1 yang langsung bekerja, berwirausaha, atau melanjutkan studi dalam 1 tahun setelah kelulusan',
+    unit:'%', targetPK:60,
+    tw3:{target:50, realisasi:43.01} },
+  { id:'1.3', sasaran:'S1', sasaranLabel:'Talenta',
+    desc:'Persentase mahasiswa program Diploma dan Sarjana yang berkegiatan/meraih prestasi di luar program studi',
+    unit:'%', targetPK:30,
+    tw3:{target:20, realisasi:9.03} },
+  { id:'2.1', sasaran:'S2', sasaranLabel:'Inovasi',
+    desc:'Persentase Dosen perguruan tinggi yang mendapatkan rekognisi internasional atau hasil penelitiannya diterapkan oleh masyarakat',
+    unit:'%', targetPK:67,
+    tw3:{target:50, realisasi:92.37} },
+  { id:'2.2', sasaran:'S2', sasaranLabel:'Inovasi',
+    desc:'Persentase luaran hasil kerja sama dan hilirisasi antara perguruan tinggi dengan industri/lembaga',
+    unit:'%', targetPK:5,
+    tw3:{target:3, realisasi:3.01} },
+  { id:'2.3', sasaran:'S2', sasaranLabel:'Inovasi',
+    desc:'Persentase publikasi bereputasi internasional (Scopus/WoS)',
+    unit:'%', targetPK:57.78,
+    tw3:{target:38, realisasi:77.28} },
+  { id:'3.1', sasaran:'S3', sasaranLabel:'Kontribusi/Dedikasi pada Masyarakat',
+    desc:'Persentase keterlibatan perguruan tinggi dalam SDG 1, SDG 4, SDG 17, dan 2 SDGs lain sesuai keunggulan',
+    unit:'%', targetPK:80,
+    tw3:{target:60, realisasi:46.88} },
+  { id:'3.2', sasaran:'S3', sasaranLabel:'Kontribusi/Dedikasi pada Masyarakat',
+    desc:'Persentase Sumber Daya Manusia (SDM) perguruan tinggi yang terlibat langsung dalam penyusunan kebijakan (nasional/daerah/industri)',
+    unit:'%', targetPK:25,
+    tw3:{target:20, realisasi:2.26} },
+  { id:'4.1', sasaran:'S4', sasaranLabel:'Tata Kelola Berintegritas',
+    desc:'Persentase pendapatan/penghasilan dari bidang nonakademik (selain UKT/uang kuliah)',
+    unit:'%', targetPK:30,
+    tw3:{target:28, realisasi:24.03} },
+  { id:'4.2', sasaran:'S4', sasaranLabel:'Tata Kelola Berintegritas',
+    desc:'Zona Integritas (Wilayah Bebas dari Korupsi/WBK dan Wilayah Birokrasi Bersih Melayani/WBBM)',
+    unit:'Unit Kerja', targetPK:2,
+    tw3:{target:1, realisasi:0} },
+  { id:'4.3.a', sasaran:'S4', sasaranLabel:'Tata Kelola Berintegritas',
+    desc:'Hasil audit atas Laporan Keuangan perguruan tinggi',
+    unit:'Opini', targetPK:'WTP',
+    tw3:{target:'WTP', realisasi:'WTP'} },
+  { id:'4.3.b', sasaran:'S4', sasaranLabel:'Tata Kelola Berintegritas',
+    desc:'Predikat Sistem Akuntabilitas Kinerja Instansi Pemerintah (SAKIP) Perguruan Tinggi',
+    unit:'Predikat', targetPK:'A',
+    tw3:{target:'-', realisasi:'AA'} },
+  { id:'4.3.c', sasaran:'S4', sasaranLabel:'Tata Kelola Berintegritas',
+    desc:'Pencegahan dan Penanganan Pelanggaran Integritas Akademik',
+    unit:'Laporan', targetPK:0,
+    tw3:{target:0, realisasi:0} },
+  { id:'4.3.d', sasaran:'S4', sasaranLabel:'Tata Kelola Berintegritas',
+    desc:'Pencegahan dan Penanganan Anti Kekerasan; Anti Narkotika, Psikotropika dan Bahan Adiktif (Narkoba); dan Anti Korupsi',
+    unit:'%', targetPK:100,
+    tw3:{target:100, realisasi:84} },
+  { id:'4.4', sasaran:'S4', sasaranLabel:'Tata Kelola Berintegritas',
+    desc:'Ketersediaan perencanaan strategis peningkatan kesejahteraan dosen',
+    unit:'Dokumen', targetPK:1,
+    tw3:{target:0, realisasi:1} },
+  { id:'4.5', sasaran:'S4', sasaranLabel:'Tata Kelola Berintegritas',
+    desc:'Nilai Kinerja Anggaran atas Pelaksanaan RKA-K/L',
+    unit:'Nilai', targetPK:87.38,
+    tw3:{target:60, realisasi:57.44} }
+];
+
+function isNum(v){ return typeof v === 'number'; }
+function pct2026(r, t){
+  if (!isNum(r) || !isNum(t) || !t) return '\u2014';
+  return ((r / t) * 100).toFixed(1) + '%';
+}
+
+const PREFIX = 'tw3';
+const Q_LABEL = 'TW III 2026';
+const sidebarQEl = document.getElementById('sidebar-' + PREFIX);
+const mainQEl = document.getElementById('main-' + PREFIX);
+const mobileSelectQ = document.getElementById('mobile-select-' + PREFIX);
+const chartsQ = {};
+
+function statusOfQuarter(d){
+  const r = d[PREFIX].realisasi, t = d[PREFIX].target;
+  if (!isNum(r) || !isNum(t)) return 'neutral';
+  return r >= t ? 'ok' : 'no';
+}
+
+let lastSasaranQ = null;
+DATA2026.forEach(d => {
+  const status = statusOfQuarter(d);
+  const dotClass = status === 'ok' ? 'dot-ok' : status === 'no' ? 'dot-no' : 'dot-neutral';
+  const badgeClass = status === 'ok' ? 'badge-ok' : status === 'no' ? 'badge-no' : 'badge-neutral';
+  const statusText = status === 'ok' ? `\u2713 Tercapai (${Q_LABEL})` : status === 'no' ? `\u2717 Belum (${Q_LABEL})` : 'Bersifat Tahunan';
+
+  if (d.sasaran !== lastSasaranQ) {
+    const lbl = document.createElement('div');
+    lbl.className = 'sasaran-label';
+    lbl.textContent = '[' + d.sasaran + '] ' + d.sasaranLabel;
+    sidebarQEl.appendChild(lbl);
+    lastSasaranQ = d.sasaran;
+  }
+
+  const btn = document.createElement('button');
+  btn.className = 'iku-btn';
+  btn.id = 'btn' + PREFIX + '-' + d.id;
+  btn.innerHTML = `
+    <div class="iku-txt">IKU ${d.id}</div>
+    <div class="iku-dot ${dotClass}"></div>
+  `;
+  btn.onclick = () => selectQuarter(PREFIX, d.id);
+  sidebarQEl.appendChild(btn);
+
+  const opt = document.createElement('option');
+  opt.value = d.id;
+  opt.textContent = `IKU ${d.id} \u2014 ${statusText}`;
+  mobileSelectQ.appendChild(opt);
+
+  const qd = d[PREFIX];
+  const row = `
+    <tr>
+      <td class="td-y">${Q_LABEL}</td>
+      <td class="td-c">${qd.realisasi}</td>
+      <td class="td-t">${qd.target}</td>
+      <td class="td-p">${pct2026(qd.realisasi, qd.target)}</td>
+    </tr>
+  `;
+
+  const panel = document.createElement('div');
+  panel.className = 'panel';
+  panel.id = 'panel' + PREFIX + '-' + d.id;
+  panel.innerHTML = `
+    <div class="ph">
+      <div>
+        <div class="ph-title">IKU ${d.id} <span style="font-size:11px;color:var(--gray-4);font-weight:500;">[${d.sasaran}] ${d.sasaranLabel}</span></div>
+        <div class="ph-desc">${d.desc}</div>
+      </div>
+      <div class="badge ${badgeClass}">${statusText}</div>
+    </div>
+    <div class="stats">
+      <div class="sc sc-blue">
+        <div class="sc-lbl">Realisasi ${Q_LABEL}</div>
+        <div class="sc-val sc-val-sm">${qd.realisasi}</div>
+        <div class="sc-sub">${d.unit}</div>
+      </div>
+      <div class="sc sc-orange">
+        <div class="sc-lbl">Target ${Q_LABEL}</div>
+        <div class="sc-val sc-val-sm">${qd.target}</div>
+        <div class="sc-sub">${d.unit}</div>
+      </div>
+      <div class="sc sc-green">
+        <div class="sc-lbl">% Capaian</div>
+        <div class="sc-val sc-val-sm" style="color:${status === 'ok' ? '#15803d' : status === 'no' ? '#b91c1c' : 'var(--gray-5)'}">${pct2026(qd.realisasi, qd.target)}</div>
+        <div class="sc-sub">dari target TW</div>
+      </div>
+      <div class="sc sc-yellow">
+        <div class="sc-lbl">Target Tahunan (PK) 2026</div>
+        <div class="sc-val sc-val-sm">${d.targetPK}</div>
+        <div class="sc-sub">${d.unit}</div>
+      </div>
+    </div>
+    <div class="chart-box">
+      <div class="chart-head">
+        <h3>Realisasi vs Target &mdash; ${Q_LABEL}</h3>
+        <div class="legend">
+          <div class="leg"><div class="leg-box"></div>Realisasi</div>
+          <div class="leg"><div class="leg-box-o"></div>Target</div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="canvas${PREFIX}-${d.id}"></canvas>
+      </div>
+      <div class="chart-delta" id="delta${PREFIX}-${d.id}"></div>
+    </div>
+    <div class="table-box">
+      <div class="table-title">Data ${Q_LABEL}</div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>Periode</th><th>Realisasi</th><th>Target</th><th>% Capaian</th>
+          </tr></thead>
+          <tbody>${row}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  mainQEl.appendChild(panel);
+});
+
+
+const valueLabelPlugin = {
+  id: 'valueLabelPlugin',
+  afterDatasetsDraw(chart){
+    const { ctx } = chart;
+    chart.data.datasets.forEach((dataset, di) => {
+      const meta = chart.getDatasetMeta(di);
+      if (meta.hidden) return;
+      meta.data.forEach((bar, i) => {
+        const val = dataset.data[i];
+        if (val === null || val === undefined) return;
+        ctx.save();
+        ctx.font = "700 11px 'JetBrains Mono', monospace";
+        ctx.fillStyle = di === 0 ? '#1a56db' : '#d04a00';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(val, bar.x, bar.y - 6);
+        ctx.restore();
+      });
+    });
+  }
+};
+function fmtDeltaVal(v){ return Number.isInteger(v) ? v : v.toFixed(2); }
+
+
+function renderDeltaQuarter(d){
+  const el = document.getElementById('delta' + PREFIX + '-' + d.id);
+  if (!el) return;
+  const qd = d[PREFIX];
+  if (!isNum(qd.realisasi) || !isNum(qd.target)) {
+    el.innerHTML = 'Indikator ini tidak memiliki nilai numerik untuk dibandingkan pada periode ini.';
+    return;
+  }
+  const diff = qd.realisasi - qd.target;
+  const cls = diff > 0 ? 'delta-up' : diff < 0 ? 'delta-down' : 'delta-flat';
+  const arrow = diff > 0 ? '&#9650;' : diff < 0 ? '&#9660;' : '&#8226;';
+  el.innerHTML = `Realisasi <b>${fmtDeltaVal(qd.realisasi)}${d.unit === '%' ? '%' : ''}</b> vs Target <b>${fmtDeltaVal(qd.target)}${d.unit === '%' ? '%' : ''}</b> &mdash; <span class="${cls}">${arrow} ${diff > 0 ? 'melebihi target' : diff < 0 ? 'di bawah target' : 'sama dengan target'} ${fmtDeltaVal(Math.abs(diff))}${d.unit === '%' ? ' poin' : ''}</span>`;
+}
+
+function buildChartQuarter(prefix, d){
+  const el = document.getElementById('canvas' + prefix + '-' + d.id);
+  if (!el || chartsQ[d.id]) { renderDeltaQuarter(d); return; }
+  const qd = d[PREFIX];
+  const rVal = isNum(qd.realisasi) ? qd.realisasi : null;
+  const tVal = isNum(qd.target) ? qd.target : null;
+  if (rVal === null && tVal === null) {
+    el.parentElement.parentElement.querySelector('.chart-wrap').innerHTML = '<div style="padding-top:60px;text-align:center;color:var(--gray-5);font-size:12.5px;">Indikator ini tidak memiliki nilai numerik untuk dibandingkan pada periode ini.</div>';
+    renderDeltaQuarter(d);
+    return;
+  }
+  chartsQ[d.id] = new Chart(el.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: [Q_LABEL],
+      datasets: [
+        { label: 'Realisasi', data: [rVal], backgroundColor: '#1a56db', borderRadius: 8, maxBarThickness: 72 },
+        { label: 'Target', data: [tVal], backgroundColor: '#d04a00', borderRadius: 8, maxBarThickness: 72 }
+      ]
+    },
+    plugins: [valueLabelPlugin],
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      layout: { padding: { top: 24, bottom: 10 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1a231a', titleColor: '#fff', bodyColor: 'rgba(255,255,255,.7)',
+          padding: 10, cornerRadius: 8,
+          titleFont: { family: 'Outfit', weight: '600', size: 12 },
+          bodyFont: { family: 'JetBrains Mono', size: 11 },
+          callbacks: { label: c => `  ${c.dataset.label}: ${c.parsed.y}` }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'JetBrains Mono', size: 11 }, color: '#9aaa9a' } },
+        y: { grid: { color: '#eef0ee' }, ticks: { font: { family: 'JetBrains Mono', size: 11 }, color: '#9aaa9a' }, beginAtZero: true }
+      }
+    }
+  });
+  renderDeltaQuarter(d);
+}
+
+function selectQuarter(prefix, id){
+  document.querySelectorAll('#main-' + prefix + ' .panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#sidebar-' + prefix + ' .iku-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel' + prefix + '-' + id).classList.add('active');
+  document.getElementById('btn' + prefix + '-' + id).classList.add('active');
+  mobileSelectQ.value = id;
+  const d = DATA2026.find(x => x.id === id);
+  buildChartQuarter(prefix, d);
+  if (chartsQ[id]) chartsQ[id].resize();
+  mainQEl.scrollTop = 0;
+}
+
+requestAnimationFrame(() => selectQuarter(PREFIX, '1.1'));
+</script>
+
+<script>
+(function(){
+  var lastSent = 0;
+  function reportHeight(){
+    var h = document.documentElement.scrollHeight;
+    if (Math.abs(h - lastSent) < 2) return;
+    lastSent = h;
+    window.parent.postMessage({ source: 'iku-dashboard', height: h }, '*');
+  }
+  if (window.ResizeObserver) {
+    new ResizeObserver(reportHeight).observe(document.body);
+  } else {
+    window.addEventListener('resize', reportHeight);
+    setInterval(reportHeight, 800);
+  }
+  window.addEventListener('load', reportHeight);
+  setTimeout(reportHeight, 300);
+})();
+</script>
+</body>
+</html>
